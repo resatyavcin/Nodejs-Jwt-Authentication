@@ -1,0 +1,28 @@
+{
+  "name": "Nodejs-Jwt-Authentication",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/resatyavcin/Nodejs-Jwt-Authentication.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/resatyavcin/Nodejs-Jwt-Authentication/issues"
+  },
+  "homepage": "https://github.com/resatyavcin/Nodejs-Jwt-Authentication#readme",
+  "dependencies": {
+    "body-parser": "^1.19.2",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mongoose": "^6.2.4",
+    "nodemon": "^2.0.15",
+    "validator": "^13.7.0"
+  }
+}
