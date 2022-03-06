@@ -25,13 +25,26 @@ router.post('/register', async (req, res) => {
 
 });
 
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    try{
+        const user = await User.findByCredentials(email, password);
+        const token = await user.generateAuthToken();
+
+        res.send({user:user, token:token})
+
+    }catch(err){
+        return res.status(500).send("An error was encountered.")
+    }
+})
+
 //FETCH ALL USERS ENDPOINT
 router.get('/users', async (req, res) => {
     try {
         const user = await User.find({});
-        return res.status(200).send(user)
+        return res.status(200).send(user);
     } catch (err) {
-        return res.status(500).send("An error was encountered.")
+        return res.status(500).send("An error was encountered.");
     }
 });
 
@@ -68,11 +81,16 @@ router.patch('/users/:id', async (req, res) => {
     }
 
     try {
-        const user = await User.findByIdAndUpdate({_id}, req.body, { new: true, runValidators: true });
+
+        const user = await User.findById({_id});
 
         if (!user) {
             return res.status(404).send("User not found.")
         }
+
+        updates.forEach((update) => user[update] = req.body[update]);
+
+        await User.create(user);
 
         return res.status(200).send(user);
 

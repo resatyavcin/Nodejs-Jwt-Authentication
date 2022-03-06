@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
-
 const Schema = mongoose.Schema;
+
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const userSchema = new Schema({
     email: {
@@ -32,6 +34,50 @@ const userSchema = new Schema({
             }
         }
     }
+});
+
+
+userSchema.statics.findByCredentials = async (email, password) => {
+
+    const user = await User.findOne({ email });
+
+    if(!user){
+        throw new Error('Unable to login');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if(!isMatch){
+        throw new Error('Unable to login');
+    }
+
+    return user;
+}
+
+
+userSchema.methods.generateAuthToken = async function() {
+    const user = this;
+    const token = jwt.sign({ _id: user._id.toString() }, process.env.PRIVATE_KEY )
+    return token;
+}
+
+/*
+    It is a function that is called before the Save or Validation operations.
+    It is accessed from the extension of the schema. Schema.pre(): Hash the plain text password before saving
+ */
+
+userSchema.pre('save', async function (next) {
+    const user = this;
+
+    if(user.isModified('password')){
+        const salt = 10;
+        user.password = await bcrypt.hash(user.password, salt);
+    }
+
+    next();
 })
 
-module.exports = mongoose.model('user', userSchema);
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
