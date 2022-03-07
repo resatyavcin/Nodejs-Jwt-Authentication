@@ -4,6 +4,8 @@
 We allocate time for continuous Auth operations in applications requiring authentication. In order not to waste this time constantly, I decided to create a Node.js project built with JWT. I hope you will like it.🎉
 
 ## Folder Structure
+
+```
 .
 ├── src/
 │   ├── api/
@@ -13,6 +15,8 @@ We allocate time for continuous Auth operations in applications requiring authen
 │   └── config/
 │       └── db.js
 └── server.js
+
+```
 
 ## Features
 very soon...
@@ -43,6 +47,6 @@ very soon...
 very soon...
 
 ## License
----
+
 MIT
 **Reşat YAVÇİN, Software**
