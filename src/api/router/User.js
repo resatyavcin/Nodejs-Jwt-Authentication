@@ -1,23 +1,31 @@
 const express = require('express');
 
+//Router
 const router = express.Router();
 
+//Model
 const User = require('../model/User');
+
+//Middleware
+const auth = require('../middleware/auth');
 
 //REGISTER ENDPOINT
 router.post('/register', async (req, res) => {
     const {email, username, password} = req.body;
 
-    const user = {
+
+    const user = new User({
         email,
         username,
         password
-    }
+    })
 
     try {
-        await User.create(user);
+        await user.save();
 
-        return res.status(201).send(user)
+        const token = await user.generateAuthToken();
+
+        return res.status(201).send({user: user, token: token})
 
     } catch (err) {
         return res.status(400).send(err);
@@ -25,51 +33,58 @@ router.post('/register', async (req, res) => {
 
 });
 
+//LOGIN ENDPOINT
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    try{
+    const {email, password} = req.body;
+    try {
         const user = await User.findByCredentials(email, password);
         const token = await user.generateAuthToken();
 
-        res.send({user:user, token:token})
+        res.send({user: user, token: token})
 
-    }catch(err){
+    } catch (err) {
         return res.status(500).send("An error was encountered.")
     }
-})
+});
+
+//LOGOUT ENDPOINT
+router.post('/users/logout', auth, async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token !== req.token;
+        })
+
+        await req.user.save();
+
+        res.status(200).send("Successfully Logout...")
+    } catch (err) {
+        return res.status(500).send("An error was encountered.")
+    }
+});
+
+//LOGOUT ALL ACCOUNT ENDPOINT
+router.post('/users/logoutAll', auth, async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token === req.token;
+        })
+        await req.user.save();
+
+        res.status(200).send("Successfully Logout all account...")
+
+    } catch (err) {
+        return res.status(500).send("An error was encountered.")
+    }
+});
 
 //FETCH ALL USERS ENDPOINT
-router.get('/users', async (req, res) => {
-    try {
-        const user = await User.find({});
-        return res.status(200).send(user);
-    } catch (err) {
-        return res.status(500).send("An error was encountered.");
-    }
+router.get('/users/me', auth, async (req, res) => {
+    return res.status(200).send(req.user);
 });
 
-
-//FETCH USER BY ID ENDPOINT
-router.get('/users/:id', async (req, res) => {
-    const _id = req.params.id;
-
-    try {
-        const user = await User.findById({_id});
-
-        if (!user) {
-            return res.status(404).send("User not found.")
-        }
-        return res.status(200).send(user);
-
-    } catch (err) {
-        return res.status(500).send("An error was encountered.")
-    }
-});
 
 //UPDATE USER BY ID ENDPOINT
-router.patch('/users/:id', async (req, res) => {
-
-    const _id = req.params.id;
+router.patch('/users/me', auth, async (req, res) => {
 
     const updates = Object.keys(req.body);
     const allowUpdates = ['username', 'email', 'password'];
@@ -82,17 +97,11 @@ router.patch('/users/:id', async (req, res) => {
 
     try {
 
-        const user = await User.findById({_id});
+        updates.forEach((update) => req.user[update] = req.body[update]);
 
-        if (!user) {
-            return res.status(404).send("User not found.")
-        }
+        await req.user.save();
 
-        updates.forEach((update) => user[update] = req.body[update]);
-
-        await User.create(user);
-
-        return res.status(200).send(user);
+        return res.status(200).send(req.user);
 
     } catch (err) {
         return res.status(500).send("An error was encountered.")
@@ -100,20 +109,12 @@ router.patch('/users/:id', async (req, res) => {
 });
 
 //DELETE USER BY ID ENDPOINT
+router.delete('/users/me', auth, async (req, res) => {
+    try {
+        await req.user.remove();
+        return res.status(200).send(req.user);
 
-router.delete('/users/:id', async (req, res)=>{
-    const _id = req.params.id;
-
-    try{
-        const user = await User.findByIdAndDelete({ _id });
-
-        if (!user) {
-            return res.status(404).send("User not found.")
-        }
-
-        return res.status(200).send(user);
-
-    }catch (err){
+    } catch (err) {
         res.status(500).send("An error was encountered.");
     }
 });

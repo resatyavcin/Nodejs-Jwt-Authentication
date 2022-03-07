@@ -8,6 +8,12 @@ const bodyParser = require('body-parser');
 const app = express();
 
 //Middleware use
+
+app.use((req,res,next)=>{
+    console.log(req.method, req.path);
+    next();
+})
+
 app.use(express.json());
 app.use(
     bodyParser.urlencoded({ extends: false })

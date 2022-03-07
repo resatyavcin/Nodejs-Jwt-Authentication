@@ -33,7 +33,13 @@ const userSchema = new Schema({
                 throw new Error("Password cannot contain password")
             }
         }
-    }
+    },
+    tokens:[{
+         token: {
+             type: String,
+             required: true
+         }
+    }]
 });
 
 
@@ -57,8 +63,26 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
 userSchema.methods.generateAuthToken = async function() {
     const user = this;
-    const token = jwt.sign({ _id: user._id.toString() }, process.env.PRIVATE_KEY )
+    const token = jwt.sign({ _id: user._id.toString() }, process.env.PRIVATE_KEY );
+
+    user.tokens = user.tokens.concat({token});
+
+    await user.save();
+
+
     return token;
+}
+
+
+userSchema.methods.toJSON = function(){
+    const user = this;
+
+    const userToObject = user.toObject();
+
+    delete userToObject.tokens;
+    delete userToObject.password;
+
+    return userToObject;
 }
 
 /*
@@ -76,6 +100,7 @@ userSchema.pre('save', async function (next) {
 
     next();
 })
+
 
 
 const User = mongoose.model('User', userSchema);
