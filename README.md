@@ -32,13 +32,13 @@ The table below contains the API requests.
 
 | METHODS | API |
 | ------ | ------ |
-| [POST] - LOGIN | /auth/login |
-| [POST] - REGISTER | /auth/register |
-| [POST] -LOGOUT ACCOUNT | /auth/users/logout |
-| [POST] - LOGOUT ALL ACCOUNT | /auth/users/logoutAll |
-| [GET] - READ PROFILE | /auth/users/me |
-| [PATCH] - UPDATE PROFILE | /auth/users/me |
-| [DELETE] - DELETE PROFILE | /auth/users/me |
+| ```[POST]``` - LOGIN | /auth/login |
+| ```[POST]``` - REGISTER | /auth/register |
+| ```[POST]``` -LOGOUT ACCOUNT | /auth/users/logout |
+| ```[POST]``` - LOGOUT ALL ACCOUNT | /auth/users/logoutAll |
+| ```[GET]``` - READ PROFILE | /auth/users/me |
+| ```[PATCH]``` - UPDATE PROFILE | /auth/users/me |
+| ```[DELETE]``` - DELETE PROFILE | /auth/users/me |
 
 ## Development
 very soon...
